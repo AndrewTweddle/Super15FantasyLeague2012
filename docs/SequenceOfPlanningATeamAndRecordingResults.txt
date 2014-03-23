@@ -1,0 +1,175 @@
+# 
+# *** The following scripts work in the DataByRound\Round$completedRound folder
+# 
+Record-RoundResults.ps1
+    Use Fiddler2 to save a json file with raw cumulative stats to date for all players
+    Get-PlayerStatsFromJsonFile.ps1
+        [Parses and creates: PlayerStats\DownloadedPlayerStatsAfterRound.csv # NB: Still only cumulative stats]
+    Generate-PlayersForSeasonFromDownloadedPlayerStats.ps1
+        [Generates:
+            fl:\MasterData\$season\Players\Players.csv
+            fl:\MasterData\$season\Players\<TeamCode>_Players.csv
+        ]
+    Calculate-PlayerStatsForRound.ps1
+        [Generates:
+            FL:\DataByRound\Round$round\PlayerStats\PlayerStatsForRound.csv             # In same folder as downloaded player stats (i.e. for round just COMPLETED)
+         From:
+            FL:\DataByRound\Round$($round-1)\PlayerStats\DownloadedPlayerStatsAfterRound.csv
+            FL:\DataByRound\Round$round\PlayerStats\DownloadedPlayerStatsAfterRound.csv
+         Where:
+             $round = $upcomingRound - 1
+        ]
+    Calculate-PlayerStatsToDate.ps1
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Inputs\PlayerStatsToDate.csv       # In player stats folder for UPCOMING round
+         From:
+            FL:\DataByRound\Round$(1..$round)\PlayerStats\PlayerStatsForRound.csv       # for $round in 1 to $upcomingRound-1
+            FL:\DataByRound\Round$round\PlayerStats\DownloadedPlayerStatsAfterRound.csv
+         Where:
+             $round = $upcomingRound - 1
+        ]
+    Calculate-MatchResultsToDate.ps1
+        [Generates:
+            FL:\DataByRound\Round$round\TeamResults\SeasonToDateMatchResults.csv
+            FL:\DataByRound\Round$round\TeamResults\MatchResultsThisRound.csv  # For debugging/info purposes only
+         From:
+            Current round section of web page @ http://livescores.ninemsn.com.au/rugby/super15.html
+            FL:\DataByRound\Round$($round - 1)\TeamResults\SeasonToDateMatchResults.csv  # Previous round's match results to date
+        ]
+    Calculate-MatchResultsToDateWithComponentsOfScore.ps1
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Inputs\SeasonToDateMatchResultsWithComponentsOfScore.csv
+         From:
+            FL:\DataByRound\Round$round\TeamResults\SeasonToDateMatchResults.csv
+            ??? Player stats to date
+        ]
+# 
+# *** The following scripts work in the DataByRound\Round$upcomingRound folder
+# 
+Prepare-UpcomingRound.ps1
+    Concatenate-MatchResultsFromPreviousAndCurrentSeason.ps1
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Inputs\AllMatchResultsToDate.csv
+         From:
+            FL:\PrevSeasonAnalysis\MatchResults\$($season-1)\AllResultsByTeamAndRound.csv
+            FL:\DataByRound\Round$($upcomingRound - 1)\TeamResults\SeasonToDateMatchResultsWithComponentsOfScore.csv
+        ]
+    Get-PlayerPricesFromDownloadedPlayerStats.ps1
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Inputs\PlayerPrices.csv
+            with columns: PlayerName,TeamCode,PositionCode,PositionType,Price,Rookie
+        ]
+    Concatenate-PlayerStatsFromPreviousAndCurrentSeason.ps1
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Inputs\AllPlayerStatsToDate.csv
+         From:
+            FL:\PrevSeasonAnalysis\PlayerStats\AllPlayerStats.csv
+            FL:\DataByRound\Round$($upcomingRound - 1)\PlayerStats\PlayerStatsToDate.csv
+        ]
+    Calculate-AggregateStatsByPlayer.ps1
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Inputs\AggregateStatsByPlayer.csv
+         From:
+            FL:\DataByRound\Round$upcomingRound\Inputs\AllPlayerStatsToDate.csv
+            FL:\DataByRound\Round$upcomingRound\Inputs\AllMatchResultsToDate.csv
+        ]
+    Calculate-AggregateStatsByPosition.ps1
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Inputs\AggregateStatsByPosition.csv
+         From:
+            FL:\DataByRound\Round$upcomingRound\Inputs\AggregateStatsByPlayer.csv
+         Using:
+            CalculateAggregateStatsByPositionCodeForUpcomingRound.r
+        ]
+    Calculate-FutureFixturesAtRound.ps1  # Just round robin rounds
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Inputs\FutureTeamFixtures.csv
+         From:
+            FL:\MasterData\$season\Fixtures\TeamFixtures.csv
+            # Note: Used for round robin only mode: FL:\DataByRound\Round$upcomingRound\Forecasts\$forecastingModel\PredictedFinalists_$($forecastingModel).csv
+        ]
+    # TODO: Generate-MatchWeightings.ps1
+    Forecast-MatchResults.ps1
+        # Calls: RScripts\ForecastMatchResults.R
+        [Generates:  # Just the main ones
+            Forecasts\NegBin\Forecasts_NegBin.csv
+            Forecasts\PredictedFinalLogTable_NegBin.csv
+            Inputs\AggregatesByTeam.csv
+            Predictions\NegBin\Predictions_NegBin.csv  # For troubleshooting and assessing goodness of fit
+         From:
+            Inputs\AllMatchResultsToDate.csv
+            Inputs\FutureTeamFixtures.csv
+            Inputs\MatchWeightings.csv   # TODO: Generate this file
+        ]
+    Generate-PredictedFinalists.ps1
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Forecasts\$forecastingModel\PredictedFinalists_$($forecastingModel).csv
+            FL:\DataByRound\Round$upcomingRound\Forecasts\$forecastingModel\PredictedFinalLogTable_WithPositions_$($forecastingModel).csv
+         From:
+            FL:\DataByRound\Round$upcomingRound\Forecasts\$forecastingModel\PredictedFinalLogTable_$($forecastingModel).csv
+
+        ]
+    Calculate-FutureFixturesAtRound.ps1  # Includes play-off rounds
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Inputs\FutureTeamFixtures.csv
+         From:
+            FL:\MasterData\$season\Fixtures\TeamFixtures.csv
+            FL:\DataByRound\Round$upcomingRound\Forecasts\$forecastingModel\PredictedFinalists_$($forecastingModel).csv
+        ]
+    Capture inputs\injuries.csv
+    Get-UnknownPlayersInInjuriesFile.ps1
+        [Displays unknown players in injuries file...
+         From:
+            FL:\DataByRound\Round$upcomingRound\Inputs\Injuries.csv
+            FL:\MasterData\$season\Players\Players.csv
+        ]
+    Capture team sheets for each team
+        [Captures:
+            FL:\DataByRound\Round$upcomingRound\TeamSheets\$($teamCode)_TeamSheet.csv  * for all team codes where a teamsheet is found
+        ]
+    Download an html file of team sheets
+        [Download to:
+            FL:\DataByRound\Round$upcomingRound\TeamSheets\TeamSheets.html
+        ]
+    Reconcile-TeamSheets.ps1
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\TeamSheets\AllPlayersNotInTeamSheets.csv
+         From:
+            FL:\DataByRound\Round$upcomingRound\TeamSheets\$($teamCode)_TeamSheet.csv  * for all team codes where a teamsheet is found
+            FL:\MasterData\$season\Players\$($teamCode)_Players.csv  * for all team codes where a teamsheet is found
+        ]
+    Generate-ProbabilitiesOfPlaying.ps1
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Inputs\ProbabilitiesOfPlaying.csv
+         From:
+            FL:\DataByRound\Round$upcomingRound\Inputs\Injuries.csv
+            FL:\DataByRound\Round$upcomingRound\TeamSheets\$($teamCode)_TeamSheet.csv  * for all team codes where a teamsheet is found
+        ]
+    Forecast-PlayerScores.ps1
+        # Calls: FL:\RScripts\ForecastPlayerScores.R
+        [Generates:
+            FL:\DataByRound\Round$upcomingRound\Forecasts\NegBin\PlayerEstimates_NegBin.csv
+            FL:\DataByRound\Round$upcomingRound\Forecasts\NegBin\PlayerEstimates_WithInputs_NegBin.csv    # Mainly for debugging purposes
+            FL:\DataByRound\Round$upcomingRound\Forecasts\NegBin\PlayerEstimates_BeforeInjuries_NegBin.csv    # Mainly for debugging purposes
+            FL:\DataByRound\Round$upcomingRound\Forecasts\NegBin\PlayerEstimates_BeforeInjuries_WithInputs_NegBin.csv    # Mainly for debugging purposes
+         From:
+            FL:\DataByRound\Round$upcomingRound\Inputs\PlayerPrices.csv
+            FL:\DataByRound\Round$upcomingRound\Inputs\FutureTeamFixtures.csv
+            FL:\DataByRound\Round$upcomingRound\Forecasts\NegBin\Forecasts_NegBin.csv
+            FL:\DataByRound\Round$upcomingRound\Inputs\ProbabilitiesOfPlaying.csv
+            FL:\PrevSeasonAnalysis\PlayerStats\AggregateStatsByPlayer.csv    # This needs to be changed to point to a file in the DataByRound folder structure
+            FL:\PrevSeasonAnalysis\PlayerStats\AggregateStatsByPosition.csv  # This needs to be changed to point to a file in the DataByRound folder structure
+            FL:\DataByRound\Round$upcomingRound\Parameters\EstimationWeights.csv
+            FL:\MasterData\$season\Rules\PositionRules.csv
+            FL:\MasterData\$season\Rules\KickerPoints.csv
+            FL:\MasterData\$season\Rules\OtherPoints.csv
+            FL:\MasterData\$season\Rules\MatchResultRules.csv
+            FL:\MasterData\$season\Rules\OtherRules.csv
+            FL:\MasterData\$season\Rules\AppearancePoints.csv
+        ]
+
+Invoke-Optimization.ps1
+    Generate-PredictedFinalistsForOptimization.ps1
+    Generate-PlayerModelForOptimization.ps1
+    Run optimization.exe
+    Parse-OptimizationOutputs.ps1

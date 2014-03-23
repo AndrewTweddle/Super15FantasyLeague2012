@@ -130,3 +130,9 @@ I still need to:
 * Change the C# Program.cs file to use a relative path not a hard-coded path
 * Test that any other outstanding dependencies, such as hard-coded file paths, have been "virtualized"
 * Test that my refactorings have not broken the application
+
+# Documentation starting point
+
+The docs/SequenceOfPlanningATeamAndRecordingResults.txt file provides an overview of the sequence of steps in both the planning and recording processes.
+
+I haven't checked that the document is up to date, but at a glance it looks roughly correct.
