@@ -133,7 +133,29 @@ I still need to:
 
 # Documentation starting point
 
-The docs/SequenceOfPlanningATeamAndRecordingResults.txt file provides an overview of the sequence of steps in both the planning and recording processes.
+## Documented sequence of steps in planning a team and recording the results
+
+The [docs/SequenceOfPlanningATeamAndRecordingResults.txt](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/docs/SequenceOfPlanningATeamAndRecordingResults.txt) 
+file provides an overview of the sequence of steps in both the planning and recording processes.
 
 Note:   I haven't checked that the document is up to date, but at a glance it looks roughly correct.
 Update: The optimization steps at the end look like they need updating.
+
+## The main Powershell scripts
+
+Here is [the master Powershell script](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/PowershellScripts/Prepare-UpcomingRound.ps1) 
+for planning the team for an upcoming round.
+
+Here is [the master Powershell script](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/PowershellScripts/Record-RoundResults.ps1) for recording the results after a round is completed.
+
+## The main R scripts
+
+Here is [the R script to forecast match results](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/RScripts/ForecastMatchResults.R).
+
+Here is [the R script to forecast players' points](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/RScripts/ForecastPlayerScores.r)
+ for all remaining rounds.
+
+## Generating the LPS linear programming model
+
+The Generate() method in the [LPSModelGenerator.cs](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/CSharp/Optimization/LPSModelGenerator.cs) 
+file provides a readable overview of the steps in constructing the Linear Programming model.
