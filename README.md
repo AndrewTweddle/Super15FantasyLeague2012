@@ -26,7 +26,8 @@ This is fairly good. However I did far better in 2011, where I came in the 99.4t
 
 In 2011, I used a massive spreadsheet to forecast player and team-based scores for each future round.
 I started off using the bookies' pre-season odds on the tournament winner to estimate the probabilities of a team winning a particular match. 
-I added a fixed linear adjustment to each probability to cater for home advantage (a sigmoid function would have worked better, but this was good enough).
+I added a fixed linear adjustment to each probability to cater for home advantage.
+A sigmoid function (such as the logistic curve) would have worked better, but this was good enough.
 I adjusted these probabilities after each round based on the actual results in the match.
 I used these probabilities to estimate the points earned by a player for being part of a winning team.
 
@@ -42,23 +43,34 @@ Finally I used a C# program to:
 
 After each round of the Super 15 competition I captured the results into the spreadsheet and this updated my statistical model for the next round.
 
-## And what did I do differently in 2012?
+## What did I do differently in 2012?
 
 The weakness of my model in 2011 was that the estimates of individual player scores was independent of who the opposition was.
 In reality, players will get a lot more points against teams with weak defence (such as the Cheetahs in 2011, who often scored a lot of tries but conceded even more).
 And they will get a lot less points against a defensively strong team (such as the Stormers in 2012, who scored very few tries but hardly conceded any either).
 
 In 2012 I wanted to incorporate these sorts of effects into the model.
-So I built a multiplicative model where each team would have an attack and defence factor at home and away from home.
-And I used this to estimate the scores of each team in each match, not just the probability of a win or loss as I did in 2011.
+So I built a multiplicative model where each team would have an attack and defence factor both at home and away from home.
+The home team's score in each match would be predicted from the home team's attack factor at home and the away team's defence factor away from home.
+The away team's score would be based on their attach factor away from home, and the home team's defence factor at home.
+
+I used this model to estimate the scores of each team in each match, not just the probability of a win or loss as I did in 2011.
+
+I made some fairly minor modifications to the C# program. But for the most part the linear programming optimizer was very similar to 2011.
+
+I also used the PowerShell scripting language for guiding me through 
+the rather complicated process of capturing various data, 
+running statistical forecasts in R, running the optimization model, 
+checking chosen teams against known teamsheets, and so forth.
+In addition PowerShell proved to be a great tool for data munging.
 
 ## Why did I do worse in 2012?
 
 My estimation model in 2011 was crude but simple.
 
 Given the limited amount of data available for building a model, simplicity is essential.
-This is something I only became aware of after following Caltech professor Yaser Abu-Mostafa's 
-excellent [Machine Learning course](https://www.youtube.com/playlist?list=PLD63A284B7615313A).
+This is something I only became aware of much later, after following Caltech professor Yaser Abu-Mostafa's 
+excellent [Machine Learning course](https://www.youtube.com/playlist?list=PLD63A284B7615313A) on YouTube.
 
 Abu-Mostafa gave the rough rule of thumb that you need about ten times as much data as the number of parameters in your model.
 
@@ -72,7 +84,10 @@ In 2011 I was in the right ballpark, with 15 parameters in my team model:
 
 But in 2012, I had 4 parameters for each of the 15 teams (attack and defence factors at home and away from home).
 And I was fitting a negative binomial distribution, which has extra flexibility to choose values for the parameters.
-So my model was over-fitting the data.
+
+So I had made the very common mistake of building a model which was "over-fitting" the data.
+
+In other words, the model was parrot learning past data rather than building generalized knowledge that can be used for predicting future data.
 
 ## How to fix the model
 
@@ -104,13 +119,13 @@ The project uses the following programming languages and technologies:
 
 # Status of the project
 
-At this point I have uploaded the C# application and some of the R and Powershell scripts.
+At this point I have uploaded the C# application and all of the R and Powershell scripts.
 
 I still need to:
-* Add the Powershell module used to step one through the planning and recording steps for each round.
-* Add the Powershell profile script for configuring the virtual drive for the Fantasy League code.
+* Add the Powershell module used to step through the planning and recording steps for each round
+* Add the Powershell profile script for configuring the virtual drive for the Fantasy League code
 * Add instructions on how to run the process
 * Add any other documentation to improve accessibility
-* Add the various data files that were inputs and outputs to various steps in the process.
-* Test that any outstanding dependencies, such as hard-coded file paths, have been "virtualized".
+* Add the various data files that were inputs and outputs to various steps in the process
+* Test that any outstanding dependencies, such as hard-coded file paths, have been "virtualized"
 * Test that my refactorings have not broken the application
