@@ -127,5 +127,6 @@ I still need to:
 * Add instructions on how to run the process
 * Add any other documentation to improve accessibility
 * Add the various data files that were inputs and outputs to various steps in the process
-* Test that any outstanding dependencies, such as hard-coded file paths, have been "virtualized"
+* Change the C# Program.cs file to use a relative path not a hard-coded path
+* Test that any other outstanding dependencies, such as hard-coded file paths, have been "virtualized"
 * Test that my refactorings have not broken the application
