@@ -167,9 +167,8 @@ Prepare-UpcomingRound.ps1
             FL:\MasterData\$season\Rules\OtherRules.csv
             FL:\MasterData\$season\Rules\AppearancePoints.csv
         ]
-
-Invoke-Optimization.ps1
-    Generate-PredictedFinalistsForOptimization.ps1
-    Generate-PlayerModelForOptimization.ps1
-    Run optimization.exe
-    Parse-OptimizationOutputs.ps1
+    Invoke-Optimization.ps1
+        Generate-PredictedFinalistsForOptimization.ps1
+        Generate-PlayerModelForOptimization.ps1
+        Run optimization.exe
+        Parse-OptimizationOutputs.ps1

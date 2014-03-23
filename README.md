@@ -135,4 +135,5 @@ I still need to:
 
 The docs/SequenceOfPlanningATeamAndRecordingResults.txt file provides an overview of the sequence of steps in both the planning and recording processes.
 
-I haven't checked that the document is up to date, but at a glance it looks roughly correct.
+Note:   I haven't checked that the document is up to date, but at a glance it looks roughly correct.
+Update: The optimization steps at the end look like they need updating.
