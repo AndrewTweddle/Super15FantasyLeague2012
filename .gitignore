@@ -56,6 +56,7 @@ TestResults/
 ehthumbs.db
 Icon?
 Thumbs.db
+desktop.ini
 
 # Ignore files which may have copyrights:
 *.pdf
