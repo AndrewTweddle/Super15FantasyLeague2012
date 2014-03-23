@@ -133,7 +133,7 @@ I still need to:
 
 # Documentation starting point
 
-## Documented sequence of steps in planning a team and recording the results
+## Documented sequence of steps
 
 The [docs/SequenceOfPlanningATeamAndRecordingResults.txt](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/docs/SequenceOfPlanningATeamAndRecordingResults.txt) 
 file provides an overview of the sequence of steps in both the planning and recording processes.
