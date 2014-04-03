@@ -128,6 +128,7 @@ I still need to:
 * Add any other documentation to improve accessibility
 * Add the various data files that were inputs and outputs to various steps in the process
 * Change the C# Program.cs file to use a relative path not a hard-coded path
+* Modify the R scripts which contain hard-coded paths (c:\FantasyLeague)
 * Test that any other outstanding dependencies, such as hard-coded file paths, have been "virtualized"
 * Test that my refactorings have not broken the application
 
