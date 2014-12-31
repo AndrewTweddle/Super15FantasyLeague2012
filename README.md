@@ -7,8 +7,10 @@ This project is a cleaned up version of the code I used to plan my Fantasy Leagu
 The fantasy league is an annual competition run by [Ultimate Dream Teams](http://ultimatedreamteams.com/site/current-games/item/20-super-rugby-fantasy-league.html).
 A friend introduced me to the competition in 2008, and I have competed 4 times since then.
 
-Initially I tried to play the game using my own intuition. This didn't work so well. 
+Initially I tried to play the game using my own intuition. This didn't work so well.
+
 My focus later shifted to using Mathematical Optimization techniques to code an algorithm to play the game for me. 
+I also used the R statistical language to build a predictive model of player and team scores.
 This was a fun way to return to my roots in Operations Research and also get experience with new programming languages and techniques at the same time.
 
 If you are competing in a Fantasy League and want some ideas on how to automate your strategy, then this project may be useful to you.
@@ -63,18 +65,18 @@ To be able to run the Powershell scripts, you should do the following:
   1. Open up Windows Powershell *as an administrator*
   2. Run the command `Set-ExecutionPolicy RemoteSigned` (this allows local .ps1 script files to be run without being cryptographically signed)
 2. Import the prompting module (NB: this is a utility to step a user through a hierarchy of manual or automated steps - I originally wrote it to facilitate automated deployment of software updates at work)
-  1. Either copy the PromptingFunctions module to the WindowsPowershell directory under your "My Documents" folder:
+  1. Import the module using the full path to the PromptingFunctions.psm1 file:
+    1. `Import-Module /path/to/WindowsPowershell/Modules/PromptingFunctions/PromptingFunctions.psm1`
+  2. Or copy the PromptingFunctions module to the WindowsPowershell directory under your "My Documents" folder:
     1. Copy the WindowsPowershell/Modules/PromptingFunctions folder under C:\Users\<YourUserName>\Documents\WindowsPowershell\Modules
     2. Open up a new Powershell session.
     3. Load the module with `Import-Module PromptingFunctions`
-  2. Or import the module using the full path to the WindowsPowershell/Modules/PromptingFunctions folder:
-    1. `Import-Module /path/to/WindowsPowershell/Modules/PromptingFunctions`
-3. Create a virtual drive FL:\ and variable `$FL` pointing to the root path of the FantasyLeague2012 working directory:
+3. Create a virtual drive `FL:\` and variable `$FL` pointing to the root path of the FantasyLeague2012 working directory:
   1. Create the variable as follows: `new-variable -Name 'FL' -Value '/path/to/working/copy' -scope Global`
   2. Create a virtual drive pointing to the path: `new-PSDrive -name 'FL' filesystem -root '/path/to/working/copy' -scope Global | out-null`
   3. Test this by checking the contents of the working copy: `dir fl:\`
 4. Consider putting the code in steps 2 and 3 into your Windows Powershell profile:
-  1. The $profile variable gives the path to this file.
+  1. The `$profile` variable gives the path to this file.
   2. Check if this file exists using `test-path $profile`
   3. If it doesn't exist, create it using `new-item -itemType 'File' -path $profile`
   4. Edit it using `notepad $profile` (or another editor)
