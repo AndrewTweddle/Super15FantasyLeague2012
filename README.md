@@ -180,12 +180,9 @@ However I've only just started reading the book, so I don't know enough yet to b
 At this point I have uploaded the C# application and all of the R and Powershell scripts.
 
 I still need to:
-* Add the Powershell module used to step through the planning and recording steps for each round
-* Add the Powershell profile script for configuring the virtual drive for the Fantasy League code
-* Add instructions on how to run the process
 * Add any other documentation to improve accessibility
 * Add the various data files that were inputs and outputs to various steps in the process
 * Change the C# Program.cs file to use a relative path not a hard-coded path
-* Modify the R scripts which contain hard-coded paths (c:\FantasyLeague)
+* Modify the R scripts which contain hard-coded paths to c:\FantasyLeague
 * Test that any other outstanding dependencies, such as hard-coded file paths, have been "virtualized"
 * Test that my refactorings have not broken the application
