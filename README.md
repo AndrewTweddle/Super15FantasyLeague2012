@@ -1,7 +1,6 @@
 # Super 15 Fantasy League: 2012
-===============================
 
-# Overview
+## Overview
 
 This project is a cleaned up version of the code I used to plan my Fantasy League team for the Super 15 Rugby tournament in 2012. 
 
@@ -9,12 +8,78 @@ The fantasy league is an annual competition run by [Ultimate Dream Teams](http:/
 A friend introduced me to the competition in 2008, and I have competed 4 times since then.
 
 Initially I tried to play the game using my own intuition. This didn't work so well. 
-My focus then shifted to using Mathematical Optimization techniques to code an algorithm to play the game for me. 
+My focus later shifted to using Mathematical Optimization techniques to code an algorithm to play the game for me. 
 This was a fun way to return to my roots in Operations Research and also get experience with new programming languages and techniques at the same time.
 
 If you are competing in a Fantasy League and want some ideas on how to automate your strategy, then this project may be useful to you.
 
-# How successful is the model?
+
+# Technologies used
+
+The project uses the following programming languages and technologies:
+* PowerShell for the scripting glue and some data munging
+* The R programming language to create the statistical model of player and team scores
+* C# to generate an LPS file to pass to lpsolve
+* LPSolve as the linear programming tool to generate an optimal schedule of player transfers for a number of rounds ahead
+* CSV files for the data inputs and outputs to each step of the process
+* The Jet OLEDB drivers to read the CSV files into C#
+
+
+# Documentation
+
+## The sequence of planning steps
+
+The [docs/SequenceOfPlanningATeamAndRecordingResults.txt](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/docs/SequenceOfPlanningATeamAndRecordingResults.txt) 
+file provides an overview of the sequence of steps in both the planning and recording processes.
+
+Note:   I haven't checked that the document is up to date, but at a glance it looks roughly correct.
+
+Update: The optimization steps at the end look like they need updating.
+
+## The main Powershell scripts
+
+Here is [the master Powershell script](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/PowershellScripts/Prepare-UpcomingRound.ps1) 
+for planning the team for an upcoming round.
+
+Here is [the master Powershell script](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/PowershellScripts/Record-RoundResults.ps1) for recording the results after a round is completed.
+
+## The main R scripts
+
+Here is [the R script to forecast match results](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/RScripts/ForecastMatchResults.R).
+
+Here is [the R script to forecast players' points](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/RScripts/ForecastPlayerScores.r)
+ for all remaining rounds.
+
+## Generating the LPS linear programming model
+
+The Generate() method in the [LPSModelGenerator.cs](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/CSharp/Optimization/LPSModelGenerator.cs) 
+file provides a readable overview of the steps in constructing the Linear Programming model.
+
+## Running the Powershell scripts
+
+To be able to run the Powershell scripts, you should do the following:
+
+1. Ensure that scripts can be run from Powershell (Powershell is locked down by default):
+  1. Open up Windows Powershell *as an administrator*
+  2. Run the command `Set-ExecutionPolicy RemoteSigned` (this allows local .ps1 script files to be run without being cryptographically signed)
+2. Import the prompting module (NB: this is a utility to step a user through a hierarchy of manual or automated steps - I originally wrote it to facilitate automated deployment of software updates at work)
+  1. Either copy the PromptingFunctions module to the WindowsPowershell directory under your "My Documents" folder:
+    1. Copy the WindowsPowershell/Modules/PromptingFunctions folder under C:\Users\<YourUserName>\Documents\WindowsPowershell\Modules
+    2. Open up a new Powershell session.
+    3. Load the module with `Import-Module PromptingFunctions`
+  2. Or import the module using the full path to the WindowsPowershell/Modules/PromptingFunctions folder:
+    1. `Import-Module /path/to/WindowsPowershell/Modules/PromptingFunctions`
+3. Create a virtual drive FL:\ and variable `$FL` pointing to the root path of the FantasyLeague2012 working directory:
+  1. Create the variable as follows: `new-variable -Name 'FL' -Value '/path/to/working/copy' -scope Global`
+  2. Create a virtual drive pointing to the path: `new-PSDrive -name 'FL' filesystem -root '/path/to/working/copy' -scope Global | out-null`
+  3. Test this by checking the contents of the working copy: `dir fl:\`
+4. Consider putting the code in steps 2 and 3 into your Windows Powershell profile:
+  1. The $profile variable gives the path to this file.
+  2. Check if this file exists using `test-path $profile`
+  3. If it doesn't exist, create it using `new-item -itemType 'File' -path $profile`
+  4. Edit it using `notepad $profile` (or another editor)
+
+# How successful was the model?
 
 ## Performance compared to 2011
 
@@ -24,15 +89,14 @@ This is fairly good. However I did far better in 2011, where I came in the 99.4t
 
 ## What was my approach in 2011?
 
-In 2011, I used a massive spreadsheet to forecast player and team-based scores for each future round.
-I started off using the bookies' pre-season odds on the tournament winner to estimate the probabilities of a team winning a particular match. 
-I added a fixed linear adjustment to each probability to cater for home advantage.
-A sigmoid function (such as the logistic curve) would have worked better, but this was good enough.
-I adjusted these probabilities after each round based on the actual results in the match.
-I used these probabilities to estimate the points earned by a player for being part of a winning team.
-
-I used the spreadsheet to track the number of individual points earned by a player in the fantasy league over the previous and current season to date.
-I used a geometrically weighted average of these points, to estimate a player's non-team related points per match.
+In 2011, I used [a massive spreadsheet](https://github.com/AndrewTweddle/Super15FantasyLeague2012/tree/master/Spreadsheets/2011) to forecast player and team-based scores for each future round.
+* I started off using the bookies' pre-season odds on the tournament winner to estimate the probabilities of a team winning a particular match. 
+* I added a fixed linear adjustment to each probability to cater for home advantage.
+  A sigmoid function (such as the logistic curve) would have worked better, but this was good enough (even though it occasionally creating impossible probabilities).
+* I adjusted these probabilities after each round based on the actual results in the match.
+* I used these probabilities to estimate the points earned by a player for being part of a winning team.
+* I used the spreadsheet to track the number of individual points earned by a player in the fantasy league over the previous and current season to date.
+* I used a geometrically weighted average of these points, to estimate a player's non-team related points per match.
 
 Finally I used a C# program to:
 * extract various input data and statistical forecasts from the spreadsheet
@@ -41,7 +105,11 @@ Finally I used a C# program to:
 * parse the outputs
 * generate a text file of team selections to copy and paste back into the spreadsheet
 
-After each round of the Super 15 competition I captured the results into the spreadsheet and this updated my statistical model for the next round.
+After each round of the Super 15 competition:
+* I  captured certain results into the spreadsheet.
+* I wrote a script which scraped the latest scores for all players from the Fantasy League web site (using a very hairy regular expression) and pasted this data into the spreadsheet.
+* I re-ran the Excel calculations (switched off by default otherwise they would take a minute to run each time a cell was changed!).
+* This would update my statistical model for the coming rounds.
 
 ## What did I do differently in 2012?
 
@@ -52,7 +120,7 @@ And they will get a lot less points against a defensively strong team (such as t
 In 2012 I wanted to incorporate these sorts of effects into the model.
 So I built a multiplicative model where each team would have an attack and defence factor both at home and away from home.
 The home team's score in each match would be predicted from the home team's attack factor at home and the away team's defence factor away from home.
-The away team's score would be based on their attach factor away from home, and the home team's defence factor at home.
+The away team's score would be based on their attack factor away from home, and the home team's defence factor at home.
 
 I used this model to estimate the scores of each team in each match, not just the probability of a win or loss as I did in 2011.
 
@@ -107,16 +175,6 @@ I recently purchased the [Applied Predictive Modeling](http://appliedpredictivem
 This is one of the aspects which the book promises to give insight into.
 However I've only just started reading the book, so I don't know enough yet to be able to give any kind of advice.
 
-# Technologies used
-
-The project uses the following programming languages and technologies:
-* PowerShell for the scripting glue and some data munging
-* The R programming language to create the statistical model of player and team scores
-* C# to generate an LPS file to pass to lpsolve
-* LPSolve as the linear programming tool to generate an optimal schedule of player transfers for a number of rounds ahead
-* CSV files for the data inputs and outputs to each step of the process
-* The Jet OLEDB drivers to read the CSV files into C#
-
 # Status of the project
 
 At this point I have uploaded the C# application and all of the R and Powershell scripts.
@@ -131,32 +189,3 @@ I still need to:
 * Modify the R scripts which contain hard-coded paths (c:\FantasyLeague)
 * Test that any other outstanding dependencies, such as hard-coded file paths, have been "virtualized"
 * Test that my refactorings have not broken the application
-
-# Documentation starting point
-
-## Documented sequence of steps
-
-The [docs/SequenceOfPlanningATeamAndRecordingResults.txt](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/docs/SequenceOfPlanningATeamAndRecordingResults.txt) 
-file provides an overview of the sequence of steps in both the planning and recording processes.
-
-Note:   I haven't checked that the document is up to date, but at a glance it looks roughly correct.
-Update: The optimization steps at the end look like they need updating.
-
-## The main Powershell scripts
-
-Here is [the master Powershell script](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/PowershellScripts/Prepare-UpcomingRound.ps1) 
-for planning the team for an upcoming round.
-
-Here is [the master Powershell script](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/PowershellScripts/Record-RoundResults.ps1) for recording the results after a round is completed.
-
-## The main R scripts
-
-Here is [the R script to forecast match results](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/RScripts/ForecastMatchResults.R).
-
-Here is [the R script to forecast players' points](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/RScripts/ForecastPlayerScores.r)
- for all remaining rounds.
-
-## Generating the LPS linear programming model
-
-The Generate() method in the [LPSModelGenerator.cs](https://github.com/AndrewTweddle/Super15FantasyLeague2012/blob/master/CSharp/Optimization/LPSModelGenerator.cs) 
-file provides a readable overview of the steps in constructing the Linear Programming model.
